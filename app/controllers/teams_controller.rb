@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class TeamsController < OpenReadController
-  before_action :set_example, only: %i[update destroy]
+class TeamsController < ProtectedController
+  before_action :set_team, only: %i[show update destroy]
 
   # GET /examples
   # GET /examples.json
   def index
-    @teams = Team.all
+    @teams = current_user.teams.all
 
     render json: @teams
   end
@@ -21,6 +21,7 @@ class TeamsController < OpenReadController
   # POST /teams.json
   def create
     @team = current_user.teams.build(team_params)
+    puts @team
 
     if @team.save
       render json: @team, status: :created
@@ -32,6 +33,7 @@ class TeamsController < OpenReadController
   # PATCH/PUT /teams/1
   # PATCH/PUT /teams/1.json
   def update
+    @team = current_user.teams.find(params[:id])
     if @team.update(team_params)
       render json: @team
     else
@@ -42,10 +44,11 @@ class TeamsController < OpenReadController
   # DELETE /teams/1
   # DELETE /teams/1.json
   def destroy
+    @team = current_user.teams.find(params[:id])
     @team.destroy
-
-    head :no_content
   end
+
+  private
 
   def set_team
     @team = current_user.teams.find(params[:id])
